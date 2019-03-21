@@ -1,3 +1,4 @@
 api-key.txt
 *.pyc
 *.swp
+/env
