@@ -3,7 +3,7 @@ Kodeoppgave for aktuelle utviklere til Oslo Origo / Coding exam for job applican
 
 ## Installation
 
-Although the underlying library is completely portable, the proof of concept code is designed to run on Python3 in a Linux or Unix environment.
+Although the underlying library is completely portable, the proof of concept code is designed to run on Python3 in a Linux or Unix environment (because it requires curses and an ANSI terminal).
 
 virtualenv and pip are required. On a Debian/Ubuntu machine, run
 
