@@ -1,6 +1,8 @@
 # bysykkel
 Kodeoppgave for aktuelle utviklere til Oslo Origo / Coding exam for job applicants for Oslo Origo 
 
+![Screenshot](/screenshot.png)
+
 ## Installation
 
 Although the underlying library that fetches from the API is completely portable, the proof of concept display code is designed to run on Python3 in a Linux or Unix environment (because it requires curses and an ANSI terminal).
