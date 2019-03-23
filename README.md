@@ -1,5 +1,4 @@
 # bysykkel
-Kodeoppgave for aktuelle utviklere til Oslo Origo / Coding exam for job applicants for Oslo Origo 
 
 ![Screenshot](/screenshot.png)
 
