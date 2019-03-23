@@ -1,8 +1,33 @@
+#!/usr/bin/env python3
+
 from pysykkel import Pysykkel
 from blessings import Terminal
 import os
 
 class PysykkelPrinter():
+    def _fmt_footer(self, col_width, num_cols, blank_cols):
+        padding_gfx = "┃  ┃  ┃ "
+        padding_fmt = self.term.white("{0:>" + str(col_width) + "s}")
+        padding = padding_fmt.format(padding_gfx)
+        retval = padding * blank_cols + os.linesep
+
+        line_1_fmt = self.term.white("{0:>" + str(col_width) + "s}")
+        line_1_gfx = "stativnavn ┛  ┃  ┃ "
+        line_1 = line_1_fmt.format(line_1_gfx)
+        retval += line_1 * num_cols + os.linesep
+
+        line_2_gfx = " ledige sykler ┛  ┃ "
+        line_2_fmt = self.term.white("{0:>" + str(col_width) + "s}")
+        line_2 = line_2_fmt.format(line_2_gfx)
+        retval += line_2 * num_cols + os.linesep
+
+        line_3_gfx = " ledige plasser ┛ "
+        line_3_fmt = self.term.white("{0:>" + str(col_width) + "s}")
+        line_3 = line_3_fmt.format(line_3_gfx)
+        retval += line_3 * num_cols
+
+        return retval
+
     def _fmt_header(self, col_width, num_cols):
         line_1_gfx = " ledige plasser ┓ "
         line_1_fmt = self.term.white("{0:>" + str(col_width) + "s}")
@@ -48,7 +73,8 @@ class PysykkelPrinter():
             if cur_col == num_cols:
                 print('')
                 cur_col = 0
-        print('')
+
+        print(self._fmt_footer(col_width, num_cols, num_cols - cur_col))
 
     # I would be using F"" for formatting but I didn't think it
     # appropriate to require python3.6 just yet
