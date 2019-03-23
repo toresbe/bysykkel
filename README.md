@@ -30,5 +30,5 @@ Place the API key in a text file called api-key.txt in your working directory.
 If everything went smoothly, you should now be able to run the test case:
 
 ```
-python ./pysykkel_print.py
+./bysykkel-status
 ```
