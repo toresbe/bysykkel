@@ -36,18 +36,17 @@ class PysykkelTest(unittest.TestCase):
         self.assertEquals(p._cache_expired('/station_information.json'), True)
         p._query_api('/station_information.json')
         self.assertEquals(p._cache_expired('/station_information.json'), False)
-
-class Station():
-    def __init__(self, initial_data = None):
-        pass
-
-    def __str__(self): 
-        pass
+        p.base_url = '' # this does not invalidate the cache but if the next line
+                        # does not halt and catch fire that means it went to 
+                        # cache
+        p._query_api('/station_information.json')
 
 class Pysykkel:
     base_url = 'https://gbfs.urbansharing.com/oslobysykkel.no'
 
     def __init__(self, client_id = 'pysykkel-development'):
+        """Please supply a client_id if you yourself are planning to use this in any 
+        context where you'd be generating a non-trivial amount of traffic."""
         self.headers = {'Client-Identifier': client_id}
         self._ttl = None
         self._resource_caches = {}
@@ -68,6 +67,8 @@ class Pysykkel:
             raise PysykkelHTTPError('Got HTTP error while requesting from Bysykkel API (' + location + '): ' + str(e))
 
     def _cache_expired(self, resource):
+        """Returns true if the given resource is cached and that cache is not stale 
+        (based on TTL value inside the cache)"""
         resource_cache = self._resource_caches.get(resource, None)
 
         if resource_cache == None:
@@ -79,6 +80,7 @@ class Pysykkel:
         return False
 
     def _query_api(self, resource):
+        """Fetches data from API, or from cache if it is not stale."""
         if self._cache_expired(resource):
             return self._get_json(resource)
         else:
