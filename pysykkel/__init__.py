@@ -15,13 +15,20 @@ class PysykkelTest(unittest.TestCase):
         p = Pysykkel()
         p.base_url = 'http://google.com/?'
         with self.assertRaises(PysykkelJSONError):
-            stations = p.stations()
+            stations = p.stations
 
     def test_raises_http_error_on_invalid_url(self):
         p = Pysykkel()
         p.base_url = 'http://this is certainly not a valid url'
         with self.assertRaises(PysykkelHTTPError):
-            stations = p.stations()
+            stations = p.stations
+
+    def test_returns_list_of_dicts(self):
+        p = Pysykkel()
+        stations = p.stations
+        self.assertIsInstance(stations, list)
+        for station in stations:
+            self.assertIsInstance(station, dict)
 
 class Pysykkel:
     base_url = 'https://gbfs.urbansharing.com/oslobysykkel.no'
