@@ -1,4 +1,4 @@
-# bysykkel
+# pysykkel
 
 ![Screenshot](/screenshot.png)
 
