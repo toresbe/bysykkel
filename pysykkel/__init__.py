@@ -4,22 +4,19 @@ except ImportError:
     print('Pysykkel depends on requests. Try "pip install --user requests"?')
     raise
 
-class PysykkelHTTPError(Exception):
+class PysykkelError(Exception):
     pass
 
-class PysykkelJSONError(Exception):
+class PysykkelHTTPError(PysykkelError):
+    pass
+
+class PysykkelJSONError(PysykkelError):
     pass
 
 class Pysykkel:
     base_url = 'https://gbfs.urbansharing.com/oslobysykkel.no'
 
-    def __init__(self):
-        try:
-            with open('client-identifier.txt', 'r') as client_id_file:
-                client_id = client_id_file.read().strip()
-        except OSError as e:
-            raise OSError('Could not open client ID file: ' + str(e))
-
+    def __init__(self, client_id = None):
         self.headers = {'Client-Identifier': client_id}
 
     def _get_json(self, location):

@@ -26,7 +26,7 @@ pip install -r requirements.txt
 
 The API requests that the Client-Identifier header be supplied, with the organization name, a dash, followed by the application name, eg. 'acme-publicdisplay'.
 
-As shipped the client-identifier is 'pysykkel-development'; if you intend to use this library to generate a lot of requests, please change this for everyone's benefit.
+As shipped the client-identifier is 'pysykkel-development'; if you intend to use this library to generate a lot of requests, please change this for everyone's benefit by passing a more descriptive string to the constructor..
 
 ### Terminal dumper
 If everything went smoothly, you should now be able to run the test case:
@@ -44,3 +44,8 @@ Another example of how the pysykkel library might be useful is this Twisted-base
 ```
 
 The server answers on port 8080.
+
+To run unit tests inside the virtualenv, do
+```
+python -m twisted.trial ./nearest-station-server
+```
