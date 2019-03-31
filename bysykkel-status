@@ -51,17 +51,12 @@ class PysykkelPrinter():
         stations = self.pysykkel.stations
         self.term = Terminal()
         # 
-        stations = sorted(stations, key=lambda k: k['title']) 
-        longest_station_name = len(max([s['title'] for s in stations], key=len))
+        stations = sorted(stations, key=lambda k: k['name']) 
+        longest_station_name = len(max([s['name'] for s in stations], key=len))
         col_width = longest_station_name + 7
         num_cols = int(self.term.width / col_width)
 
         line_width = num_cols * col_width
-
-        if self.pysykkel.all_stations_closed:
-            msg = 'OBS: Bysykkelsystemet er på nåværende tidspunkt ute av drift!'
-            fmt_string = self.term.bright_red('{0:^' + str(line_width) + 's}')
-            print(fmt_string.format(msg))
 
         print(self._fmt_header(col_width, num_cols))
 
@@ -81,23 +76,23 @@ class PysykkelPrinter():
     def _fmt_entry(self, station, width):
         fmt_string = self.term.bright_cyan("{0:>" + str(width - 7) + "s}")
 
-        if station['availability']['bikes'] == 0:
+        if station['availability']['num_bikes_available'] == 0:
             fmt_string += self.term.bright_red(" {1:2}")
-        elif station['availability']['bikes'] < 3:
+        elif station['availability']['num_bikes_available'] < 3:
             fmt_string += self.term.bright_yellow(" {1:2}")
         else:
             fmt_string += self.term.bright_green(" {1:2}")
 
-        if station['availability']['locks'] == 0:
+        if station['availability']['num_docks_available'] == 0:
             fmt_string += self.term.bright_red(" {2:2} ")
-        elif station['availability']['locks'] < 3:
+        elif station['availability']['num_docks_available'] < 3:
             fmt_string += self.term.bright_yellow(" {2:2} ")
         else:
             fmt_string += self.term.bright_green(" {2:2} ")
 
-        return fmt_string.format(station['title'], \
-                station['availability']['bikes'], \
-                station['availability']['locks'])
+        return fmt_string.format(station['name'], \
+                station['availability']['num_bikes_available'], \
+                station['availability']['num_docks_available'])
 
 if __name__ == '__main__':
     PysykkelPrinter()
