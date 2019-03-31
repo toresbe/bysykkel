@@ -42,11 +42,10 @@ class PysykkelTest(unittest.TestCase):
         p._query_api('/station_information.json')
 
 class Pysykkel:
-    base_url = 'https://gbfs.urbansharing.com/oslobysykkel.no'
-
-    def __init__(self, client_id = 'pysykkel-development'):
+    def __init__(self, base_url = 'https://gbfs.urbansharing.com/oslobysykkel.no', client_id = 'pysykkel-development'):
         """Please supply a client_id if you yourself are planning to use this in any 
         context where you'd be generating a non-trivial amount of traffic."""
+        self.base_url = base_url
         self.headers = {'Client-Identifier': client_id}
         self._ttl = None
         self._resource_caches = {}
