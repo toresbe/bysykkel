@@ -1,8 +1,4 @@
-try:
-    import requests
-except ImportError:
-    print('Pysykkel depends on requests. Try "pip install --user requests"?')
-    raise
+import requests
 
 class PysykkelError(Exception):
     pass
