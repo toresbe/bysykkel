@@ -1,4 +1,5 @@
 import requests
+import time
 from twisted.trial import unittest
 
 class PysykkelError(Exception):
@@ -30,11 +31,26 @@ class PysykkelTest(unittest.TestCase):
         for station in stations:
             self.assertIsInstance(station, dict)
 
+    def test_uses_cache(self):
+        p = Pysykkel()
+        self.assertEquals(p._cache_expired('/station_information.json'), True)
+        p._query_api('/station_information.json')
+        self.assertEquals(p._cache_expired('/station_information.json'), False)
+
+class Station():
+    def __init__(self, initial_data = None):
+        pass
+
+    def __str__(self): 
+        pass
+
 class Pysykkel:
     base_url = 'https://gbfs.urbansharing.com/oslobysykkel.no'
 
     def __init__(self, client_id = 'pysykkel-development'):
         self.headers = {'Client-Identifier': client_id}
+        self._ttl = None
+        self._resource_caches = {}
 
     def _get_json(self, location):
         """Obtain the JSON data of GET on base_url + location as a dictionary.
@@ -43,17 +59,36 @@ class Pysykkel:
         try:
             data = requests.get(self.base_url + location, headers=self.headers)
             data.raise_for_status()
-            return data.json()
+            result = data.json()
+            self._resource_caches[location] = result
+            return result
         except ValueError:
             raise PysykkelJSONError('Received invalid JSON from Bysykkel API while trying to fetch ' + location)
         except requests.exceptions.RequestException as e:
             raise PysykkelHTTPError('Got HTTP error while requesting from Bysykkel API (' + location + '): ' + str(e))
 
+    def _cache_expired(self, resource):
+        resource_cache = self._resource_caches.get(resource, None)
+
+        if resource_cache == None:
+            return True
+
+        if (resource_cache['ttl'] + resource_cache['last_updated']) > time.time():
+            return True
+            
+        return False
+
+    def _query_api(self, resource):
+        if self._cache_expired(resource):
+            return self._get_json(resource)
+        else:
+            return self._resource_caches[resource]
+
     @property
     def stations(self):
         """Return a list of all stations in the system, including availability data"""
-        station_data = self._get_json('/station_information.json')['data']['stations']
-        availability_data = self._get_json('/station_status.json')['data']['stations']
+        station_data = self._query_api('/station_information.json')['data']['stations']
+        availability_data = self._query_api('/station_status.json')['data']['stations']
 
         # Munge the dict into a list of (id, availability_dict) tuples
         availability_list = [(a['station_id'], a) for a in availability_data]
