@@ -1,2 +1,4 @@
 requests
 blessings
+twisted
+geopy

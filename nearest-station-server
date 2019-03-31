@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+from twisted.internet import reactor
+from twisted.web import server, resource
+
+import json
+
+import pysykkel
+
+from geopy.distance import distance
+
+class stations(resource.Resource):
+    isLeaf = True
+
+    def render_GET(self, request):
+        if(b'lon' not in request.args) and (b'lat' not in request.args):
+            here = (59.913588, 10.755898) # default to origo, heh
+        else:
+            try:
+                here = (float(request.args[b'lat'][0]), float(request.args[b'lon'][0]))
+            except ValueError:
+                request.setResponseCode(400)
+                return b'Could not convert lat and lon arguments to floating point numbers!'
+
+        try:
+            stations = pysykkel.Pysykkel().stations
+        except:
+            request.setResponseCode(503)
+            return b'Failed to read from Bysykkel API!'
+
+        for station in stations:
+            station['distance'] = distance(here, (station['lat'], station['lon'])).meters
+
+        stations = sorted(stations, key=lambda x: x['distance'])
+
+        request.responseHeaders.addRawHeader(b"content-type", b"application/json")
+
+        return json.dumps(stations, ensure_ascii=False).encode('utf-8')
+
+site = server.Site(stations())
+
+reactor.listenTCP(8080, site)
+
+if __name__ == "__main__":
+    reactor.run()

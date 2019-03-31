@@ -28,8 +28,19 @@ The API requests that the Client-Identifier header be supplied, with the organiz
 
 As shipped the client-identifier is 'pysykkel-development'; if you intend to use this library to generate a lot of requests, please change this for everyone's benefit.
 
+### Terminal dumper
 If everything went smoothly, you should now be able to run the test case:
 
 ```
 ./bysykkel-status
 ```
+
+### REST service
+
+Another example of how the pysykkel library might be useful is this Twisted-based web service which will accept latitude and longitude as GET parameters, and return JSON data on station availability, sorted by distance from your supplied coordinates.
+
+```
+./nearest-station-server
+```
+
+The server answers on port 8080.
