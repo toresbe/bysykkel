@@ -43,14 +43,3 @@ class Pysykkel:
             station['availability'] = [item for item in availability_list if item[0] == station['station_id']][0][1]
 
         return station_data
-
-    @property
-    def status(self):
-        """ Return a dict with a list of closed stations, and a boolean value
-        saying whether all stations are closed."""
-        a = requests.get(self.base_url + '/status', headers=self.headers).json()
-        return a['status']
-
-    @property
-    def all_stations_closed(self):
-        return self.status['all_stations_closed']
