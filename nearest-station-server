@@ -8,11 +8,65 @@ import json
 import pysykkel
 
 from geopy.distance import distance
+from twisted.trial import unittest
 
-class stations(resource.Resource):
+import random
+
+class WebTest(unittest.TestCase):
+    class _dummy_request ():
+        lat = 59.913588
+        lon = 10.755898
+        code = 200
+
+        @property
+        def args(self):
+            return {b'lat': [self.lat], b'lon': [self.lon] }
+
+        def setResponseCode(self, code):
+            self.code = code
+
+    def test_get_stations_without_coords(self):
+        cs = ClosestStations()
+        dummy_request = self._dummy_request()
+        response = cs._get_closest_stations(dummy_request)
+        stations_with_dummy_coords = json.loads(response.decode())
+
+    def test_malformed_coords_returns_400(self):
+        cs = ClosestStations()
+        dummy_request = self._dummy_request()
+        dummy_request.lat = 'HELLO THIS SHOULD NOT WORK'
+        dummy_request.lon = 'HELLO THIS SHOULD NOT WORK'
+        response = cs._get_closest_stations(dummy_request)
+        self.assertEqual(dummy_request.code, 400)
+
+    def test_zero_distance_between_same_station(self):
+        cs = ClosestStations()
+        dummy_request = self._dummy_request()
+
+        response = cs._get_closest_stations(dummy_request)
+        stations_with_dummy_coords = json.loads(response.decode())
+
+        random_station = random.choice([station for station in stations_with_dummy_coords])
+
+        dummy_request.lat = random_station['lat']
+        dummy_request.lon = random_station['lon']
+
+        response = cs._get_closest_stations(dummy_request)
+        stations_with_a_random_stations_coords = json.loads(response.decode())
+        that_same_station_again = [s for s in stations_with_a_random_stations_coords \
+                if s['station_id'] == random_station['station_id']]
+
+        self.assertEqual(stations_with_a_random_stations_coords[0]['distance'], 0)
+        self.assertEqual(dummy_request.code, 200)
+
+class ClosestStations(resource.Resource):
     isLeaf = True
 
     def render_GET(self, request):
+        request.responseHeaders.addRawHeader(b"content-type", b"application/json")
+        return _get_closest_stations(request)
+
+    def _get_closest_stations(self, request):
         if(b'lon' not in request.args) and (b'lat' not in request.args):
             here = (59.913588, 10.755898) # default to origo, heh
         else:
@@ -24,8 +78,9 @@ class stations(resource.Resource):
 
         try:
             stations = pysykkel.Pysykkel().stations
-        except:
+        except PysykkelError as e:
             request.setResponseCode(503)
+            print (e)
             return b'Failed to read from Bysykkel API!'
 
         for station in stations:
@@ -33,13 +88,10 @@ class stations(resource.Resource):
 
         stations = sorted(stations, key=lambda x: x['distance'])
 
-        request.responseHeaders.addRawHeader(b"content-type", b"application/json")
-
         return json.dumps(stations, ensure_ascii=False).encode('utf-8')
 
-site = server.Site(stations())
-
-reactor.listenTCP(8080, site)
 
 if __name__ == "__main__":
+    site = server.Site(ClosestStations())
+    reactor.listenTCP(8080, site)
     reactor.run()
