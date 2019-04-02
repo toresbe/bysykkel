@@ -64,7 +64,7 @@ class ClosestStations(resource.Resource):
 
     def render_GET(self, request):
         request.responseHeaders.addRawHeader(b"content-type", b"application/json")
-        return _get_closest_stations(request)
+        return self._get_closest_stations(request)
 
     def _get_closest_stations(self, request):
         if(b'lon' not in request.args) and (b'lat' not in request.args):
